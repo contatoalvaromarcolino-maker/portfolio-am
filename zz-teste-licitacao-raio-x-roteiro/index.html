@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="robots" content="noindex">
+<title>Roteiro do dono · Raio-x · Álvaro Marcolino</title><style>/* ═══════════════════════════════════════════════════════════════════
+   am-deck.css — tema dos decks do padrão VISUAL AM (Álvaro Marcolino)
+   Origem da pele: painel de tokens unificado (css_novo.txt, 269 linhas +
+   preview-am-unificado-v1.html), traduzida de painel para deck em
+   05/09/2026. SOMENTE DARK (decisão S2) — não existe variante clara;
+   problema de legibilidade em projeção se resolve com MAIS contraste
+   dentro do dark, nunca clareando o fundo.
+   A logo AM (230x119, sha256 e837032b...) é a única marca do padrão:
+   cabeçalho E marca d'água saem do MESMO arquivo. A logo Dois A não
+   entra em material AM.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root{
+  /* paleta REAL do painel de tokens — não alterar sem aprovação */
+  --bg:#070A11;
+  --card:rgba(255,255,255,.038);
+  --card-alto:rgba(255,255,255,.058);
+  --line:rgba(255,255,255,.085);
+  --line-ac:rgba(199,206,219,.34);
+  --tp:#F0F4FF;                       /* texto principal */
+  --ts:rgba(240,244,255,.62);         /* secundário — .52 no painel; .62 aqui por projeção */
+  --tm:rgba(240,244,255,.34);         /* mudo — .28 no painel; .34 aqui por projeção */
+  /* Acento PRATA FRIO (decisão do Álvaro, 05/09/2026): a marca dele é cinza
+     metálico, não laranja. O laranja do painel de tokens saiu do deck (revisão 05/09).
+     Como o prata fica perto do texto em luminância, a hierarquia se faz por
+     brilho e peso, não por matiz: número de destaque ganha text-shadow. */
+  --ac:#C7CEDB; --acr:199,206,219;
+  --ac-apoio:#8A93A6;                 /* aço fosco, para o segundo plano */
+  --ok:#22C55E; --err:#EF4444; --warn:#F59E0B;
+  --fb:'Inter',-apple-system,BlinkMacSystemFont,Arial,sans-serif;
+  --fm:'Roboto Mono',ui-monospace,Consolas,monospace;
+  --suave:cubic-bezier(.34,1.56,.64,1);
+  --eleg:cubic-bezier(.25,.46,.45,.94);
+  --sidebar-w:284px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--tp);font-family:var(--fb);
+  font-size:14px;-webkit-font-smoothing:antialiased;overflow:hidden;
+  font-feature-settings:'cv02','cv03','cv04','cv11';}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+
+/* ═══ CAMADAS DE FUNDO — grade, ruído, orbes, varredura, marca d'água ═══
+   É isto que separa "pele trocada" do corpo do padrão (lição 21/08). */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.021) 0 1px,transparent 1px 44px),
+             repeating-linear-gradient(90deg,rgba(255,255,255,.021) 0 1px,transparent 1px 44px);
+  -webkit-mask-image:radial-gradient(ellipse 78% 68% at 50% 34%,#000 30%,transparent 100%);
+  mask-image:radial-gradient(ellipse 78% 68% at 50% 34%,#000 30%,transparent 100%);}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:2;opacity:.05;
+  mix-blend-mode:soft-light;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23g)'/%3E%3C/svg%3E");}
+.orb{position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0;}
+.orb-1{width:620px;height:620px;top:-220px;left:-140px;
+  background:radial-gradient(circle,rgba(var(--acr),.16) 0%,transparent 70%);
+  animation:am-respira 16s ease-in-out infinite;}
+.orb-2{width:420px;height:420px;bottom:-140px;right:-120px;
+  background:radial-gradient(circle,rgba(120,140,180,.13) 0%,transparent 70%);
+  animation:am-respira 11s ease-in-out 3s infinite;}
+.light-sweep{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:1;pointer-events:none;overflow:hidden;}
+.light-sweep::before{content:'';position:absolute;top:-50%;left:-60%;width:46%;height:220%;
+  background:linear-gradient(100deg,transparent 0%,rgba(255,255,255,.04) 45%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.04) 55%,transparent 100%);
+  transform:rotate(8deg);animation:am-sweep 17s ease-in-out infinite;}
+.bg-mark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:420px;max-width:60vw;
+  z-index:0;pointer-events:none;animation:am-mark-breathe 9s ease-in-out infinite;}
+.bg-mark img{width:100%;height:auto;display:block;filter:grayscale(1) brightness(1.5);}
+
+@keyframes am-respira{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.08)}}
+@keyframes am-sweep{0%,62%{left:-60%;opacity:0}70%{opacity:1}86%{left:130%;opacity:1}92%,100%{left:130%;opacity:0}}
+@keyframes am-mark-breathe{0%,100%{opacity:.14}50%{opacity:.2}}
+@keyframes am-mark-glow{0%,100%{filter:drop-shadow(0 0 8px rgba(255,255,255,.12))}50%{filter:drop-shadow(0 0 18px rgba(255,255,255,.35))}}
+
+/* ═══ SHELL — sidebar de vidro + palco ═══ */
+.shell{position:relative;z-index:3;display:grid;grid-template-columns:var(--sidebar-w) 1fr;height:100vh}
+.sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;scrollbar-width:thin;
+  background:rgba(255,255,255,.028);border-right:1px solid var(--line);
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  padding:24px 0 16px;}
+.sb-head{padding:0 22px 18px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.sb-head::after{content:'';position:absolute;right:-30px;top:-30px;width:120px;height:120px;opacity:.5;
+  background:radial-gradient(circle,rgba(var(--acr),.28),transparent 65%)}
+.am-mark{height:44px;width:auto;display:block;animation:am-mark-glow 5s ease-in-out infinite;}
+.sb-sub{font-size:9.5px;font-weight:600;letter-spacing:1.8px;text-transform:uppercase;color:var(--tm);margin-top:10px}
+.study-id{padding:14px 22px;font-size:10.5px;color:var(--ts);border-bottom:1px solid var(--line);line-height:1.6}
+.study-id b{color:var(--tp)}
+
+.nav{padding:10px 12px}
+.nav-sec{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;cursor:pointer;
+  border-left:2px solid transparent;transition:background .16s ease-out}
+.nav-sec .n{font-family:var(--fm);font-size:10.5px;font-weight:700;color:var(--ac-apoio);min-width:20px}
+.nav-sec .t{font-size:12.5px;font-weight:500;color:var(--ts);line-height:1.25;flex:1}
+@media (hover:hover) and (pointer:fine){
+  .nav-sec:hover{background:rgba(255,255,255,.05)}
+  .nav-sec:hover .t{color:var(--tp)}
+}
+.nav-sec.active{background:rgba(var(--acr),.1);border-left-color:var(--ac)}
+.nav-sec.active .t{font-weight:700;color:var(--tp)}
+.sb-foot{padding:14px 22px 4px;font-family:var(--fm);font-size:9px;color:var(--tm);
+  border-top:1px solid var(--line);margin-top:8px;letter-spacing:.6px}
+
+/* ═══ PALCO ═══ */
+.content{position:relative;height:100vh;overflow:hidden}
+section.sec{
+  position:absolute;inset:0;padding:52px 68px;display:flex;flex-direction:column;
+  justify-content:safe center;overflow-y:auto;
+  opacity:0;visibility:hidden;
+  /* `visibility` na lista NÃO é enfeite — tirar mata o fade de saída
+     (razão completa: PADRAO-AM.md, seção da cascata). */
+  transition:opacity .14s linear, visibility .14s;pointer-events:none;
+}
+section.sec.active{opacity:1;visibility:visible;pointer-events:auto;z-index:2}
+.slide-body{max-width:1120px;margin:0 auto;width:100%}
+
+/* ═══ CASCATA DE ENTRADA — contrato herdado da /apresentacao ═══
+   Anima na PRIMEIRA visita; revisita entra pronta (am-deck.js, reanimate).
+   A regra abaixo NUNCA leva !important: o rebobinar depende de o estilo
+   inline vencer. Classe de erro mais cara do padrão original.            */
+.cascade-item{opacity:0;animation:am-up .5s var(--suave) forwards}
+.cascade-item[data-delay="1"]{animation-delay:.06s}
+.cascade-item[data-delay="2"]{animation-delay:.12s}
+.cascade-item[data-delay="3"]{animation-delay:.18s}
+.cascade-item[data-delay="4"]{animation-delay:.24s}
+.cascade-item[data-delay="5"]{animation-delay:.30s}
+.cascade-item[data-delay="6"]{animation-delay:.36s}
+@keyframes am-up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+/* Movimento reduzido não é movimento zero. */
+@media(prefers-reduced-motion:reduce){
+  .cascade-item{animation:am-fade .16s linear forwards}
+  @keyframes am-fade{from{opacity:0}to{opacity:1}}
+  .orb,.light-sweep::before,.bg-mark,.am-mark{animation:none!important}
+}
+
+/* ═══ CAPA ═══ */
+.sec.capa{align-items:flex-start}
+.cap-kicker{font-family:var(--fm);font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--ac);font-weight:700;display:flex;align-items:center;gap:12px}
+.cap-kicker::before{content:'';width:30px;height:2px;background:var(--ac)}
+.cap-logo{height:84px;width:auto;display:block;margin-bottom:26px;
+  animation:am-mark-glow 5s ease-in-out infinite;}
+.cap-title{font-size:52px;font-weight:800;line-height:1.1;letter-spacing:-1.2px;max-width:20ch;
+  margin-top:18px;color:var(--tp)}
+/* Metálico de verdade em texto grande é gradiente, não brilho: o glow difuso
+   borra a letra em corpo 52 e o título perde nitidez em projeção. */
+.cap-title b{background:linear-gradient(103deg,#EDF1F8 0%,var(--ac) 38%,#8A93A6 62%,#E4E9F2 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  -webkit-text-fill-color:transparent}
+.cap-sub{font-size:15.5px;color:var(--ts);margin-top:18px;max-width:56ch;line-height:1.65}
+.cap-meta{margin-top:30px;display:flex;gap:10px;flex-wrap:wrap}
+
+/* ═══ TÍTULO DE SEÇÃO ═══ */
+.sec-title{display:flex;align-items:baseline;gap:12px;margin-bottom:8px}
+.sec-title .num{font-family:var(--fm);font-size:20px;font-weight:700;color:var(--ac)}
+.sec-title .tt{font-size:24px;font-weight:800;color:var(--tp);letter-spacing:-.4px}
+.sec-lead{font-size:14px;color:var(--ts);max-width:78ch;margin-bottom:20px;line-height:1.65}
+.sec-lead b{color:var(--tp)}
+
+/* ═══ CHIPS ═══ */
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;
+  font:700 10px/1 var(--fb);letter-spacing:.9px;text-transform:uppercase;
+  border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--ts);white-space:nowrap}
+.chip.ac{border-color:var(--line-ac);background:rgba(var(--acr),.14);color:var(--ac)}
+.chip.ok{border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.12);color:var(--ok)}
+
+/* ═══ KPI (vidro, borda inferior acesa — .kt do painel) ═══ */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:20px}
+.kpi{position:relative;text-align:center;padding:20px 16px;border-radius:14px;
+  background:var(--card);border:1px solid var(--line);border-bottom:2px solid rgba(var(--acr),.45);
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  box-shadow:0 8px 32px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.07);
+  transition:transform .3s var(--suave),background .3s var(--eleg)}
+.kpi:hover{transform:translateY(-3px);background:var(--card-alto)}
+.kpi .k-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ts);font-weight:700}
+.kpi .k-value{font-family:var(--fm);font-size:30px;font-weight:300;color:var(--tp);margin-top:9px;letter-spacing:-.5px}
+/* Número em destaque: com acento prata, matiz não separa mais do texto branco,
+   então a hierarquia vem do brilho metálico. */
+.kpi .k-value b{color:var(--ac);font-weight:400;
+  text-shadow:0 0 14px rgba(var(--acr),.55),0 0 30px rgba(var(--acr),.22)}
+.kpi .k-unit{font-size:13px;color:var(--ts);font-weight:600;margin-left:2px}
+.kpi .k-sub{font-size:10px;color:var(--tm);margin-top:7px;text-transform:uppercase;letter-spacing:.7px}
+
+/* ═══ CARTÃO DE VIDRO ═══ */
+.card{position:relative;overflow:hidden;
+  background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px;
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  box-shadow:0 8px 32px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.07);
+  transition:border-color .3s var(--eleg)}
+.card:hover{border-color:var(--line-ac)}
+.card h4{font-size:12px;color:var(--ac-apoio);text-transform:uppercase;letter-spacing:.08em;margin-bottom:9px}
+.card p{font-size:12.5px;line-height:1.65;color:var(--ts)}
+.card p b{color:var(--tp)}
+.card ul{font-size:12.5px;line-height:1.65;color:var(--ts)}
+.card li{margin-bottom:7px;padding-left:16px;position:relative}
+.card li::before{content:'—';position:absolute;left:0;color:var(--ac-apoio);font-weight:700}
+.card li b{color:var(--tp)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:16px 16px 0 0;
+  background:linear-gradient(90deg,transparent,rgba(var(--acr),.7),transparent)}
+.two-col{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:start}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+
+/* ═══ TABELA ═══ */
+.table-wrap{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:18px;
+  background:var(--card);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead th{background:rgba(var(--acr),.12);color:var(--ac-apoio);font-weight:700;font-size:10px;
+  text-transform:uppercase;letter-spacing:.06em;padding:11px 14px;text-align:center;
+  border-bottom:1px solid var(--line-ac)}
+tbody tr:nth-child(even){background:rgba(255,255,255,.025)}
+tbody td{padding:10px 14px;border-top:1px solid var(--line);text-align:center;color:var(--ts)}
+tbody td:first-child{font-weight:700;color:var(--tp);text-align:left}
+td.num{font-family:var(--fm);font-variant-numeric:tabular-nums}
+.pill{display:inline-block;font-size:9px;font-weight:800;text-transform:uppercase;border-radius:999px;padding:3px 10px}
+.pill.ok{background:rgba(34,197,94,.14);color:var(--ok)}
+.pill.warn{background:rgba(245,158,11,.14);color:var(--warn)}
+.pill.crit{background:rgba(239,68,68,.14);color:var(--err)}
+.pill.ac{background:rgba(var(--acr),.16);color:var(--ac)}
+
+/* ═══ CALLOUT ═══ */
+.callout{position:relative;border-radius:14px;padding:15px 18px;margin:12px 0;
+  border:1px solid var(--line-ac);border-left:3px solid var(--ac);background:rgba(var(--acr),.07)}
+.callout .ct{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ac-apoio);margin-bottom:5px}
+.callout p{font-size:12.5px;line-height:1.65;color:var(--ts)}
+.callout p b{color:var(--tp)}
+
+/* ═══ ETAPAS ═══ */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:8px 0 18px}
+.step{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:18px 18px 16px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.step .s-n{width:27px;height:27px;border-radius:50%;background:rgba(var(--acr),.16);color:var(--ac);
+  border:1px solid var(--line-ac);font-family:var(--fm);font-size:12px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.step .s-t{font-size:13px;font-weight:800;color:var(--tp);margin-bottom:5px}
+.step .s-d{font-size:11.5px;color:var(--ts);line-height:1.55}
+.step.done{border-color:rgba(34,197,94,.35)}
+.step.done .s-n{background:rgba(34,197,94,.14);color:var(--ok);border-color:rgba(34,197,94,.4)}
+
+/* ═══ GRÁFICOS (ECharts auto-hospedado) ═══ */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:10px 0 18px}
+.chart-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px 8px;
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+.chart-card .cc-title{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--ac)}
+.chart-card .cc-note{font-size:10.5px;color:var(--tm);margin-bottom:6px}
+.chart-card .cc-canvas{width:100%;height:240px}
+@media(max-width:900px){.chart-grid{grid-template-columns:1fr}}
+
+/* ═══ IMAGENS / PRINTS ═══ */
+.img-inset{border-radius:14px;overflow:hidden;border:1px solid var(--line);margin:10px 0 6px;
+  box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.img-inset img{display:block;width:100%;height:auto}
+.img-cap{padding:9px 16px;background:rgba(255,255,255,.03);border-top:1px solid var(--line);
+  font-size:10.5px;color:var(--tm)}
+.img-cap b{color:var(--ts)}
+/* Grade de prints. A célula é um item de grade que se estica: sem isto, a
+   legenda da última linha cai fora da tela em monitor de altura comum (achado
+   da leitura como destinatário, 05/09). `align-content:start` + altura máxima
+   por imagem mantêm as quatro células na mesma caixa e o texto sempre visível. */
+.img-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:10px 0 18px;
+  align-content:start;}
+.img-grid > *{display:flex;flex-direction:column;min-width:0}
+.img-grid .img-inset{margin:0}
+.img-grid .img-inset img{max-height:34vh;object-fit:cover;object-position:top}
+.img-grid .img-cap{margin-top:0;border-radius:0 0 14px 14px}
+.img-ph{display:flex;align-items:center;justify-content:center;aspect-ratio:16/9;border-radius:14px;
+  background:repeating-linear-gradient(135deg,rgba(255,255,255,.03),rgba(255,255,255,.03) 10px,rgba(255,255,255,.06) 10px,rgba(255,255,255,.06) 20px);
+  border:1px dashed var(--line);color:var(--tm);font-size:12px;font-weight:600;text-align:center;padding:20px}
+@media(max-width:900px){.img-grid{grid-template-columns:1fr}}
+
+/* ═══ DIAGRAMA CSS (fluxo horizontal simples) ═══ */
+.flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin:10px 0 18px}
+.flow-node{flex:1 1 150px;background:var(--card);border:1px solid var(--line);border-radius:13px;
+  padding:14px 15px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.flow-node .f-t{font-size:12px;font-weight:800;color:var(--tp);margin-bottom:4px}
+.flow-node .f-d{font-size:10.5px;color:var(--ts);line-height:1.5}
+.flow-arrow{flex:0 0 34px;display:flex;align-items:center;justify-content:center;
+  color:var(--ac);font-size:17px;font-weight:700}
+@media(max-width:900px){.flow{flex-direction:column}.flow-arrow{transform:rotate(90deg);flex-basis:24px}}
+
+/* ═══ PREÇO ═══ */
+.price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:10px 0 18px}
+.price-card{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--line-ac);
+  border-radius:16px;padding:22px;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  box-shadow:0 8px 32px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.07)}
+.price-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(var(--acr),.8),transparent)}
+.price-card .p-name{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ts)}
+.price-card .p-value{font-family:var(--fm);font-size:26px;font-weight:400;color:var(--ac);margin:10px 0 4px}
+.price-card .p-cond{font-size:11.5px;color:var(--ts);line-height:1.6}
+
+/* ═══ ENCERRAMENTO ═══ */
+.sec.fecho .cap-title{font-size:40px}
+.fecho-mark{height:64px;width:auto;display:block;margin-bottom:24px;opacity:.9;
+  animation:am-mark-glow 5s ease-in-out infinite;}
+
+/* ═══ ACESSO — link e credencial dentro do slide ═══
+   Bloco de demonstração: quem recebe o deck consegue entrar no sistema pela
+   própria tela. Todo slide que traz credencial leva a tarja `.acesso-aviso`;
+   é o que separa "material comercial" de "documento pessoal". */
+.acesso{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin:14px 0 6px;
+  padding:14px 18px;border-radius:14px;background:var(--card);
+  border:1px solid var(--line);border-left:3px solid var(--ac);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.acesso .a-rot{font:700 9.5px/1 var(--fb);letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--ac-apoio)}
+.acesso .a-link{font:400 12px/1.5 var(--fm);color:var(--tp);word-break:break-all}
+.acesso .a-cred{font:400 12px/1 var(--fm);color:var(--tp);background:rgba(var(--acr),.12);
+  border:1px solid var(--line-ac);border-radius:8px;padding:5px 11px}
+.acesso a{color:var(--ac);text-decoration:none;border-bottom:1px solid var(--line-ac)}
+.acesso a:hover{border-bottom-color:var(--ac)}
+.acesso-aviso{display:block;margin-top:8px;font:600 9.5px/1.5 var(--fb);letter-spacing:.6px;
+  text-transform:uppercase;color:var(--tm)}
+
+/* ═══ ASSINATURA DE RODAPÉ ═══ */
+.sec-sign{position:absolute;left:68px;right:68px;bottom:18px;display:flex;align-items:center;gap:10px;
+  font-family:var(--fm);font-size:9px;color:var(--tm);letter-spacing:.1em;text-transform:uppercase}
+.sec-sign::before{content:'';flex:0 0 26px;height:2px;background:var(--ac)}
+
+/* ═══ NAVEGAÇÃO FLUTUANTE (vidro) ═══ */
+.deck-nav{position:fixed;bottom:18px;right:24px;z-index:900;display:flex;align-items:center;gap:9px;
+  background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:14px;padding:7px 12px;
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.deck-nav button{font-family:inherit;cursor:pointer;width:30px;height:30px;border-radius:9px;
+  border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--tp);font-size:14px;font-weight:700;
+  transition:background .14s ease-out,border-color .14s ease-out,color .14s ease-out,transform .14s ease-out}
+.deck-nav button:active{transform:scale(.97)}
+@media (hover:hover) and (pointer:fine){
+  .deck-nav button:hover{background:rgba(var(--acr),.16);border-color:var(--line-ac);color:var(--ac)}
+}
+.deck-nav button:disabled{opacity:.3;cursor:default}
+.deck-nav button:disabled:hover{background:rgba(255,255,255,.04);color:var(--tp);border-color:var(--line)}
+#slidePos{font-family:var(--fm);font-size:12px;font-weight:600;color:var(--ts);min-width:58px;text-align:center}
+.deck-nav .hint{font-size:9.5px;color:var(--tm);font-weight:600;border-left:1px solid var(--line);padding-left:10px}
+
+/* ═══ RESPONSIVO ═══ */
+@media(max-width:820px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{display:none}
+  section.sec{padding:30px 22px 84px;justify-content:flex-start;overflow-y:auto}
+  .sec-sign{display:none}
+  .bg-mark{width:300px}
+  .cap-title{font-size:32px}
+  .cap-sub{font-size:13.5px}
+  .cap-logo{height:60px}
+  .deck-nav{bottom:12px;right:12px;left:12px;justify-content:center}
+  .deck-nav .hint{display:none}
+}
+</style><style>/* Estilos do painel do raio-x. Escopados por prefixo .rx-; nada de !important; paleta so a do padrao AM. */
+.rx-p{font-size:13.5px;color:var(--ts);line-height:1.6;margin:6px 0}
+.rx-p b,.rx-nota b{color:var(--tp)}
+.rx-nota{font-size:12px;color:var(--tm);line-height:1.55;margin-top:10px}
+.rx-lab{font-family:var(--fm);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ac-apoio);margin:16px 0 8px}
+.rx-ul{list-style:none;display:grid;gap:8px}
+.rx-ul li{font-size:13px;color:var(--ts);line-height:1.55;padding-left:14px;position:relative}
+.rx-ul li::before{content:'';position:absolute;left:0;top:.62em;width:5px;height:5px;border-radius:50%;background:var(--ac-apoio)}
+.rx-vazio{font-size:12px;color:var(--tm);font-style:italic;margin:4px 0}
+.rx-fonte{display:block;margin-top:4px;font-family:var(--fm);font-size:10.5px;color:var(--tm)}
+.rx-src{color:var(--ac);border-bottom:1px solid rgba(var(--acr),.34)}
+.rx-src:hover{color:var(--tp)}
+.rx-q{margin:8px 0 0;padding:9px 12px;border-left:2px solid rgba(var(--acr),.4);background:rgba(255,255,255,.03);border-radius:0 9px 9px 0;font-size:12.5px;color:var(--ts);line-height:1.55}
+
+/* panorama e blocos em grade */
+.rx-pano-grid,.rx-dif-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:16px}
+.rx-pano,.rx-dif,.rx-com{padding:18px 20px}
+.rx-pano h3,.rx-dif h3,.rx-com h3,.rx-sug h3,.rx-dir h3{font-size:16px;font-weight:700;color:var(--tp)}
+.rx-pano-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+.rx-nums{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ts)}
+.rx-nums b{font-family:var(--fm);font-size:20px;color:var(--tp);margin-right:4px;text-shadow:0 0 14px rgba(var(--acr),.35)}
+.rx-comp li{padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.rx-comp li::before{display:none}
+.rx-chips-i{display:inline-flex;gap:6px;flex-wrap:wrap;margin-left:6px}
+
+/* filtros e matriz */
+.rx-resumos{display:flex;flex-wrap:wrap;gap:6px 16px;margin-bottom:12px;font-size:11.5px;color:var(--ts)}
+.rx-resumo b{color:var(--tp);margin-right:6px}
+.rx-filtros{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}
+.rx-chips{display:flex;gap:6px;flex-wrap:wrap;flex:1 1 520px}
+.rx-chip{font:600 11.5px/1 var(--fb);color:var(--ts);background:var(--card);border:1px solid var(--line);border-radius:20px;padding:7px 12px;cursor:pointer}
+.rx-chip.on{color:var(--tp);border-color:var(--line-ac);background:var(--card-alto)}
+.rx-chip:focus-visible,.rx-cel:focus-visible,.rx-thumb:focus-visible,.rx-lb-x:focus-visible,#rxBusca:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+#rxBusca{flex:0 1 220px;font:500 12.5px var(--fb);color:var(--tp);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.rx-mx{max-height:62vh;overflow:auto}
+.rx-tab{width:100%;border-collapse:separate;border-spacing:0;min-width:760px}
+.rx-tab th,.rx-tab td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle;font-size:12.5px;color:var(--ts)}
+.rx-tab thead th{position:sticky;top:0;z-index:3;background:#0d111b;color:var(--tp);font-size:11.5px;letter-spacing:.03em}
+.rx-tab tbody th[scope=row]{font-weight:500;min-width:230px}
+.rx-fn-n{display:block;color:var(--tp);font-weight:600;font-size:13px}
+.rx-fn-d{display:block;color:var(--tm);font-size:11.5px;line-height:1.45;margin-top:2px}
+.rx-cel{font:700 10.5px/1 var(--fb);text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--line);border-radius:999px;padding:6px 10px;cursor:pointer;background:transparent;color:var(--ts);white-space:nowrap}
+.rx-cel.st-tem,.pill.st-tem{color:#0b1a10;background:var(--ok);border-color:var(--ok)}
+.rx-cel.st-nao-tem,.pill.st-nao-tem{color:#fff;background:var(--err);border-color:var(--err)}
+.rx-cel.st-nao-verificado,.pill.st-nao-verificado{color:var(--ts);background:rgba(255,255,255,.07);border-color:var(--line)}
+.rx-cel:hover{border-color:var(--line-ac)}
+.rx-fn.aberta th,.rx-fn.aberta td{background:rgba(255,255,255,.035)}
+.rx-det{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;padding:6px 2px 12px}
+.rx-det-card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--card)}
+.rx-det-card.foco{border-color:var(--line-ac);background:var(--card-alto)}
+.rx-det-h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px;color:var(--tp)}
+.rx-tela-ref{font:600 11.5px var(--fb);color:var(--ac);background:none;border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin-top:8px;cursor:pointer}
+.rx-tela-ref:hover{border-color:var(--line-ac)}
+
+/* galeria e lightbox */
+.rx-galeria{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.rx-fig{margin:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card)}
+.rx-thumb{display:block;width:100%;padding:0;border:0;background:#000;cursor:zoom-in}
+.rx-thumb img{display:block;width:100%;height:auto}
+.rx-fig figcaption{display:grid;gap:5px;padding:10px 12px;font-size:12px;color:var(--ts);line-height:1.5}
+.rx-fig figcaption b{color:var(--tp);font-size:13px}
+.rx-lb{position:fixed;inset:0;z-index:1000;background:rgba(4,6,10,.92);display:flex;align-items:center;justify-content:center;padding:20px}
+.rx-lb[hidden]{display:none}
+.rx-lb-in{position:relative;max-width:1180px;width:100%;max-height:94vh;overflow:auto;border:1px solid var(--line-ac);border-radius:14px;background:#0b0f19;padding:14px}
+.rx-lb-in img{display:block;width:100%;height:auto;border-radius:8px}
+.rx-lb-x{position:absolute;top:8px;right:10px;width:36px;height:36px;border-radius:50%;border:1px solid var(--line-ac);background:#0b0f19;color:var(--tp);font-size:22px;cursor:pointer;z-index:2}
+.rx-lb-t{display:grid;gap:6px;padding:12px 4px 4px;color:var(--ts);font-size:13px;line-height:1.55}
+.rx-lb-t b{color:var(--tp);font-size:15px}
+
+/* sugestao */
+.rx-tres{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:16px;margin-bottom:16px}
+.rx-sug{padding:18px 20px}
+.rx-sug.vai{border-top:2px solid var(--ok)}.rx-sug.pode{border-top:2px solid var(--warn)}.rx-sug.nao{border-top:2px solid var(--err)}
+.rx-sl{list-style:none;display:grid;gap:12px;margin-top:12px}
+.rx-sl li{display:grid;gap:3px}
+.rx-sl b{color:var(--tp);font-size:13.5px}
+.rx-sl span{color:var(--ts);font-size:12.5px;line-height:1.55}
+.rx-dir{padding:18px 20px}
+.rx-cota td.rx-nt{font-size:11.5px;color:var(--tm);max-width:340px}
+.rx-cota td,.rx-cota th{font-size:12.5px}
+
+@media(max-width:820px){
+  section.sec{padding:26px 16px 78px}
+  .rx-mx{max-height:none}
+  .rx-tab{min-width:680px}
+  .rx-tab tbody th[scope=row]{min-width:170px}
+  .rx-galeria{grid-template-columns:1fr 1fr}
+  .rx-pano-grid,.rx-dif-grid,.rx-tres{grid-template-columns:1fr}
+}
+@media(max-width:480px){.rx-galeria{grid-template-columns:1fr}}
+.rx-fig figcaption .chip{justify-self:start}
+@media(max-width:820px){.rx-det{grid-template-columns:1fr;position:sticky;left:0;width:calc(100vw - 52px)}}
+
+.rx-res{display:block;margin-top:5px;font-size:11.5px;color:var(--tm)}
+.rx-lb-in img{cursor:default}
+@media(max-width:820px){
+  .rx-lb-scroll{overflow:auto;-webkit-overflow-scrolling:touch;max-height:62vh;border-radius:8px}
+  .rx-lb-in img{width:auto;max-width:none;min-width:980px}
+  .rx-cel{min-height:44px;padding:0 14px}
+  .rx-chip{min-height:44px;padding:0 14px}
+  .rx-tela-ref{min-height:44px}
+  .rx-src{display:inline-flex;align-items:center;padding:0 6px;min-height:44px;min-width:44px;box-sizing:border-box}
+  .deck-nav button{min-width:44px;min-height:44px}
+  #rxBusca{min-height:44px}
+  .rx-lb-x{width:44px;height:44px}
+}
+
+.rx-lb-scroll{max-width:100%}
+
+.rx-cel.alegacao::after{content:'*';margin-left:3px}
+
+.rx-sub{font-size:15px;font-weight:700;color:var(--tp);margin:26px 0 10px}
+.rx-fichas{display:grid;gap:8px}
+.rx-ficha{border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.03)}
+.rx-ficha summary{cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;font-size:13.5px;color:var(--tp);list-style:none}
+.rx-ficha summary::-webkit-details-marker{display:none}
+.rx-ficha[open]{background:rgba(255,255,255,.05)}
+.rx-ficha-in{padding:2px 16px 14px}
+.rx-fn-img{display:block;max-width:100%;width:760px;border-radius:10px;border:1px solid var(--line);margin:10px 0;cursor:zoom-in}
+.rx-prova{font-size:11.5px;color:var(--ts);opacity:.8}
+
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+@media (max-width:700px){.rx-tab{min-width:620px}}
+
+.rx-ir{display:none;font-family:inherit;font-size:13px;min-height:44px;max-width:46vw;border-radius:9px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--tp);padding:0 8px}
+.rx-ir option{color:#111}
+@media(max-width:820px){.rx-ir{display:block}}
+
+.rx-dica{display:none;font-size:12px;color:var(--ts);margin:0 0 6px}
+@media(max-width:700px){.rx-dica{display:block}}
+@media(max-width:820px){.deck-nav{gap:6px;padding-left:8px;padding-right:8px}.deck-nav #btnFull{display:none}.rx-ir{max-width:38vw}}
+</style></head>
+<body><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="light-sweep" aria-hidden="true"></div><div class="bg-mark" aria-hidden="true"><img id="bgMarkImg" alt=""></div>
+<div class="shell"><aside class="sidebar"><div class="sb-head"><img class="am-mark" src="data:image/png;base64,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" alt="AM"><div class="sb-sub">ÁLVARO MARCOLINO</div></div>
+<div class="study-id"><b>ROTEIRO DO DONO</b><br>Raio-x das plataformas<br>12/10/2026</div><nav class="nav" id="nav"></nav><div class="sb-foot">ÁLVARO MARCOLINO</div></aside>
+<main class="content" id="content"><section class="sec capa" id="s1"><div class="slide-body">
+  <div class="cap-kicker cascade-item" data-delay="1">Roteiro do dono</div>
+  <h1 class="cap-title cascade-item" data-delay="2">Como conferir o raio-x das plataformas, sem ajuda técnica</h1>
+  <p class="cap-sub cascade-item" data-delay="3">Onze passos, uns 30 minutos, no computador e no celular. Cada passo diz o que fazer e o que tem de acontecer. Se algo diferente acontecer, responda no chat: aprovado, corrigir (e o quê) ou refazer (e o quê).</p>
+  <div class="cap-meta cascade-item" data-delay="4"><a class="chip" href="https://contatoalvaromarcolino-maker.github.io/portfolio-am/licitacao-raio-x/" target="_blank" rel="noopener noreferrer">Abrir o painel</a><span class="chip">12/10/2026</span></div>
+</div></section><section class="sec" id="s2" data-num="02" data-nav="Abra o painel e confira o começo"><div class="slide-body">
+  <div class="sec-title cascade-item" data-delay="1"><h2>1. Abra o painel e confira o começo</h2></div>
+  <div class="card cascade-item" data-delay="2" style="padding:20px 22px"><div class="rx-lab">O que fazer</div><p class="rx-p">Na capa deste roteiro, clique no botão &#x27;Abrir o painel&#x27;. Na primeira tela do painel deve aparecer o título &#x27;Raio-x das plataformas de licitação e de obras&#x27; e quatro números: plataformas, páginas lidas, funções comparadas e telas de uso real. São a capa e mais onze telas, duas delas as novas &#x27;por dentro&#x27; do ConLicitação e do Obras Online, listadas no índice à esquerda; use o índice ou as setas do teclado para passar de tela. No celular o índice some e a navegação fica na barra de baixo.</p></div>
+  <div class="callout cascade-item" data-delay="3"><b>O que tem de acontecer.</b> A capa e as onze telas abrem, na ordem do índice, sem pedir senha e sem nenhuma tela em branco.</div>
+</div></section><section class="sec" id="s3" data-num="03" data-nav="Teste a tabela de funções"><div class="slide-body">
+  <div class="sec-title cascade-item" data-delay="1"><h2>2. Teste a tabela de funções</h2></div>
+  <div class="card cascade-item" data-delay="2" style="padding:20px 22px"><div class="rx-lab">O que fazer</div><p class="rx-p">Vá à tela &#x27;Matriz de funções&#x27;. Clique no grupo &#x27;Busca e descoberta&#x27;: a lista encolhe. Clique em &#x27;Todas&#x27; para voltar. Agora digite &#x27;alerta&#x27; na caixa de busca: sobram só as funções com essa palavra. Para limpar, clique em &#x27;Todas&#x27; (ele também apaga a caixa de busca).</p></div>
+  <div class="callout cascade-item" data-delay="3"><b>O que tem de acontecer.</b> Cada filtro muda a lista e o &#x27;Todas&#x27; devolve as 42 funções.</div>
+</div></section><section class="sec" id="s4" data-num="04" data-nav="Abra a prova de uma célula"><div class="slide-body">
+  <div class="sec-title cascade-item" data-delay="1"><h2>3. Abra a prova de uma célula</h2></div>
+  <div class="card cascade-item" data-delay="2" style="padding:20px 22px"><div class="rx-lab">O que fazer</div><p class="rx-p">Na tabela, clique numa célula verde &#x27;tem&#x27;, por exemplo ConLicitação em &#x27;Busca com filtros&#x27;. Abre um quadro com as cinco plataformas lado a lado. Em cada uma deve aparecer como a plataforma mostra aquilo, uma frase entre aspas copiada da página e o endereço dela. Clique no endereço: a página abre numa aba nova. Para achar a frase nela, aperte Ctrl e F e cole um pedaço da frase. No celular as plataformas aparecem uma embaixo da outra, e não lado a lado.</p></div>
+  <div class="callout cascade-item" data-delay="3"><b>O que tem de acontecer.</b> Toda célula &#x27;tem&#x27; mostra uma frase literal ou uma tela. Nenhuma fica &#x27;tem&#x27; sem prova.</div>
+</div></section><section class="sec" id="s5" data-num="05" data-nav="Confira o que é &#x27;não verificado&#x27;"><div class="slide-body">
+  <div class="sec-title cascade-item" data-delay="1"><h2>4. Confira o que é &#x27;não verificado&#x27;</h2></div>
+  <div class="card cascade-item" data-delay="2" style="padding:20px 22px"><div class="rx-lab">O que fazer</div><p class="rx-p">Procure uma célula cinza &#x27;não verificado&#x27; e clique. O quadro deve dizer que a pesquisa não achou prova, e a célula não pode estar marcada como &#x27;não tem&#x27;. Nenhuma célula do painel está como &#x27;não tem&#x27;: quando a pesquisa não achou prova nem contra nem a favor, a célula fica &#x27;não verificado&#x27;. Um asterisco ao lado de &#x27;tem&#x27; marca o que só consta no material do próprio fornecedor.</p></div>
+  <div class="callout cascade-item" data-delay="3"><b>O que tem de acontecer.</b> Ausência de prova aparece como &#x27;não verificado&#x27;, nunca como &#x27;não tem&#x27;.</div>
+</div></section><section class="sec" id="s6" data-num="06" data-nav="Amplie uma tela de uso real"><div class="slide-body">
+  <div class="sec-title cascade-item" data-delay="1"><h2>5. Amplie uma tela de uso real</h2></div>
+  <div class="card cascade-item" data-delay="2" style="padding:20px 22px"><div class="rx-lab">O que fazer</div><p class="rx-p">Vá à tela &#x27;Telas e como mostram&#x27;. Clique numa imagem: ela abre ampliada, com o que a tela mostra e como mostra. Feche no X ou com a tecla Esc.</p></div>
+  <div class="callout cascade-item" data-delay="3"><b>O que tem de acontecer.</b> A imagem abre, é legível e fecha. Nenhum nome de pessoa, e-mail nem cliente aparece: onde o sistema mostraria o nome do usuário, há uma tarja preta.</div>
+</div></section><section class="sec" id="s7" data-num="07" data-nav="Leia o que a comunidade diz"><div class="slide-body">
+  <div class="sec-title cascade-item" data-delay="1"><h2>6. Leia o que a comunidade diz</h2></div>
+  <div class="card cascade-item" data-delay="2" style="padding:20px 22px"><div class="rx-lab">O que fazer</div><p class="rx-p">Vá à tela &#x27;O que a comunidade diz&#x27;. As frases são de gente de fora do fornecedor, cada uma com o endereço de onde saiu. Onde a lista está vazia, o painel explica que não achou, em vez de inventar. Os depoimentos que estão no site do próprio fornecedor ficam fora e só aparecem contados.</p></div>
+  <div class="callout cascade-item" data-delay="3"><b>O que tem de acontecer.</b> Cada frase tem endereço. Listas vazias dizem que a pesquisa não achou.</div>
+</div></section><section class="sec" id="s8" data-num="08" data-nav="Leia a sugestão para o nosso produto"><div class="slide-body">
+  <div class="sec-title cascade-item" data-delay="1"><h2>7. Leia a sugestão para o nosso produto</h2></div>
+  <div class="card cascade-item" data-delay="2" style="padding:20px 22px"><div class="rx-lab">O que fazer</div><p class="rx-p">Vá à tela &#x27;Sugestão para o nosso produto&#x27;. São três colunas: o que vai ter, o que pode ter e o que não deve ter, e uma caixa com a direção visual. É proposta minha. A decisão é sua.</p></div>
+  <div class="callout cascade-item" data-delay="3"><b>O que tem de acontecer.</b> Cada ponto diz de onde veio. A decisão fica com você.</div>
+</div></section><section class="sec" id="s9" data-num="09" data-nav="Leia a seção &#x27;ConLicitação por dentro&#x27;"><div class="slide-body">
+  <div class="sec-title cascade-item" data-delay="1"><h2>8. Leia a seção &#x27;ConLicitação por dentro&#x27;</h2></div>
+  <div class="card cascade-item" data-delay="2" style="padding:20px 22px"><div class="rx-lab">O que fazer</div><p class="rx-p">Vá à tela &#x27;ConLicitação por dentro&#x27;. No alto vêm o resumo, o que o plano da CDG inclui e as descobertas. Abaixo há uma ficha por função: clique no título de uma ficha e ela abre, com a tela, o que mostra, o que faz, o que não faz e o que não deu para ver. Clique no print dentro da ficha: ele abre ampliado, e Esc fecha. Mais abaixo estão a tabela do dado de cada licitação, a tabela de filtros e a dos vídeos transcritos, cada um com o minuto de um trecho. No celular, as tabelas rolam de lado com o dedo. Perto do fim, uma caixa compara o &#x27;Pergunte ao Edital&#x27; do ConLicitação com o &#x27;Pergunte à IA&#x27; da CDG.</p></div>
+  <div class="callout cascade-item" data-delay="3"><b>O que tem de acontecer.</b> Toda ficha abre e mostra texto. O número que o texto anuncia (por exemplo, &#x27;cinco filtros&#x27;) bate com a lista logo abaixo. O print mostra a função da ficha, e nenhum código interno nem caminho de arquivo aparece.</div>
+</div></section><section class="sec" id="s10" data-num="10" data-nav="Leia a seção &#x27;Obras Online por dentro&#x27;"><div class="slide-body">
+  <div class="sec-title cascade-item" data-delay="1"><h2>9. Leia a seção &#x27;Obras Online por dentro&#x27;</h2></div>
+  <div class="card cascade-item" data-delay="2" style="padding:20px 22px"><div class="rx-lab">O que fazer</div><p class="rx-p">Vá à tela &#x27;Obras Online por dentro&#x27;. Ela é montada do mesmo jeito: resumo, o que a Dois A contratou, descobertas, uma ficha por tela do CRM, o dicionário dos campos de uma obra, os filtros e os vídeos transcritos. Em &#x27;O que ficou de fora&#x27;, no fim, leia o aviso sobre o painel &#x27;Rodovias - Análise de Mercado&#x27;, apagado e refeito, explicado no passo 11. O painel não mostra nenhuma linha de cliente nem de contato, só colunas e contagens.</p></div>
+  <div class="callout cascade-item" data-delay="3"><b>O que tem de acontecer.</b> As fichas abrem, o dicionário lista os campos de uma obra e a seção diz com franqueza o que não foi visto. Nenhum nome de cliente, e-mail ou telefone aparece.</div>
+</div></section><section class="sec" id="s11" data-num="11" data-nav="O caminho errado: procure o que não pode estar lá"><div class="slide-body">
+  <div class="sec-title cascade-item" data-delay="1"><h2>10. O caminho errado: procure o que não pode estar lá</h2></div>
+  <div class="card cascade-item" data-delay="2" style="padding:20px 22px"><div class="rx-lab">O que fazer</div><p class="rx-p">Com o painel aberto, aperte Ctrl e F e procure por &#x27;@&#x27;. Depois por &#x27;senha&#x27; e por &#x27;token&#x27;. Por fim, procure o nome do usuário que aparece no canto da tela quando você entra no ConLicitação ou no Obras Online (o seu nome ou o da pessoa da CDG que cedeu a conta). Nenhuma dessas buscas pode achar e-mail, senha, chave ou nome de pessoa. Pode aparecer a palavra &#x27;senha&#x27; ou &#x27;token&#x27; dentro de uma frase copiada de uma página de terceiros, e isso não é defeito.</p></div>
+  <div class="callout cascade-item" data-delay="3"><b>O que tem de acontecer.</b> A busca por &#x27;@&#x27; e a busca pelo nome não acham nada. &#x27;senha&#x27; e &#x27;token&#x27; só aparecem dentro de aspas, em frase de página lida, e nas duas seções novas a palavra vem como &#x27;credencial&#x27;.</div>
+</div></section><section class="sec" id="s12" data-num="12" data-nav="Confira as suas contas e o painel refeito"><div class="slide-body">
+  <div class="sec-title cascade-item" data-delay="1"><h2>11. Confira as suas contas e o painel refeito</h2></div>
+  <div class="card cascade-item" data-delay="2" style="padding:20px 22px"><div class="rx-lab">O que fazer</div><p class="rx-p">Abra o ConLicitação e o Obras Online como você abre sempre. No ConLicitação não pode ter sobrado licitação gerenciada, pesquisa salva nova nem portal cadastrado. Duas coisas não voltam: um boletim que ficou marcado como lido (o contador de não lidos caiu de 382 para 381) e a marca dos avisos promocionais, que reaparecem a cada sessão e você fecha de novo. No Obras Online, abra Relatórios e conte os painéis: devem ser seis. O &#x27;Rodovias - Análise de Mercado&#x27; foi apagado por engano durante o teste do botão Desfazer e refeito no mesmo dia, a seu pedido, a partir do &#x27;Saneamento - Análise de Mercado&#x27;. Os números dos oito gráficos batem com os do original; mudaram a ordem das linhas em duas tabelas e a ordem dos gráficos na tela, e o endereço antigo do painel não volta. Abra também o &#x27;Saneamento - Análise de Mercado&#x27; e veja a tabela de categoria de uso: se ela começar por Veículo Leve sobre Trilhos com uma seta no cabeçalho, a ordenação ficou gravada na reconstrução e pode ser desfeita clicando na seta.</p></div>
+  <div class="callout cascade-item" data-delay="3"><b>O que tem de acontecer.</b> O ConLicitação está como estava, exceto essas duas marcas. O Obras Online mostra seis painéis, com o Rodovias refeito, e o Saneamento na ordem de sempre. Se não quiser abrir as contas agora, responda &#x27;não conferi&#x27;: este é o único passo que precisa de login.</div>
+</div></section><section class="sec" id="s13" data-num="13" data-nav="Feito e não feito"><div class="slide-body">
+  <div class="sec-title cascade-item" data-delay="1"><h2>Feito e não feito</h2></div>
+  <div class="two-col">
+    <div class="card cascade-item" data-delay="2" style="padding:18px 20px"><h3>Feito</h3><ul class="rx-ul"><li>Cinco plataformas lidas, com endereço e data de cada página.</li><li>As duas com login percorridas tela a tela. Na segunda rodada, o ConLicitação e o Obras Online foram abertos por dentro, função por função, com 871 ações medidas no registro, nunca abaixo de 1 segundo entre uma e outra, e os vídeos de ajuda transcritos inteiros, menos quatro que o site não deixou baixar (três do ConLicitação e um do Obras Online).</li><li>Cinco fichas do método de engenharia reversa, partes 1 e 2.</li><li>Painel com a tabela de funções, as telas, a comunidade, as comparações, a jornada e a sugestão.</li></ul></div>
+    <div class="card cascade-item" data-delay="3" style="padding:18px 20px"><h3>Não feito</h3><ul class="rx-ul"><li>As cotas de 500 e 150 páginas só foram batidas com fonte da categoria, e cada plataforma diz o número alcançado.</li><li>Tela real das três plataformas sem login: elas foram lidas só por fora.</li><li>Planta para reconstruir e caminhos de extração de dados, por decisão sua.</li><li>Decisão de produto: a sugestão é proposta.</li><li>O painel 'Rodovias - Análise de Mercado' do Obras Online foi apagado por engano e refeito com os mesmos números; mudou a ordem de linhas e gráficos (passo 11).</li></ul></div>
+  </div>
+</div></section></main></div>
+<div class="deck-nav"><button id="btnPrev" title="Anterior">&#8249;</button><span id="slidePos">1 / 1</span><button id="btnNext" title="Próximo">&#8250;</button><button id="btnFull" title="Tela cheia">&#9974;</button><span class="hint">← → navega</span></div>
+<script>/* ═══════════════════════════════════════════════════════════════════
+   am-deck.js — motor de navegação dos decks do padrão VISUAL AM
+   Versão: 1.0.0 (05/09/2026). Zero dependência. Zero marca no código.
+
+   CONTRATO DA CASCATA (herdado da /apresentacao via /apresentacao-brisa):
+   ao entrar num slide pela PRIMEIRA vez, todo .cascade-item dele tem a
+   animação rebobinada pela WAAPI (cancel + play) e revela em escada.
+   Revisita entra pronta — quem volta para retomar um número já leu
+   aquilo, e revelar de novo só faz esperar. Se a regra .cascade-item do
+   CSS levar !important, o estilo inline perde e a cascata congela nos
+   dois caminhos. Nunca pôr.
+
+   MARCA D'ÁGUA: #bgMarkImg recebe o src da .am-mark do cabeçalho — a
+   marca do padrão AM é UMA só, e os dois slots saem do mesmo arquivo
+   (mecânica do painel de tokens, lição de 21/08).
+   ═══════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  var DECK_VERSION = '1.0.0';
+  var secs = [], navItems = [], cur = 0;
+
+  function wireMark() {
+    var m = document.querySelector('.am-mark');
+    var f = document.getElementById('bgMarkImg');
+    if (m && f && m.src) f.src = m.src;
+  }
+
+  function reanimate(sec) {
+    if (!sec) return;
+    var items = sec.querySelectorAll('.cascade-item'), i, el;
+
+    if (sec.dataset.visto) {
+      for (i = 0; i < items.length; i++) {
+        items[i].style.animation = 'none';
+        items[i].style.opacity = '1';   /* sem isto o .cascade-item fica no opacity:0 do CSS */
+      }
+      return;
+    }
+    sec.dataset.visto = '1';
+
+    for (i = 0; i < items.length; i++) {
+      el = items[i];
+      el.style.opacity = '';
+      if (el.getAnimations) {
+        var anims = el.getAnimations();
+        for (var j = 0; j < anims.length; j++) { anims[j].cancel(); anims[j].play(); }
+      } else {
+        el.style.animation = 'none';
+        void el.offsetHeight;
+        el.style.animation = '';
+      }
+    }
+  }
+
+  /* Índice da sidebar gerado dos próprios slides: data-nav (rótulo) e
+     data-num (número exibido). Slide sem data-nav fica fora do índice. */
+  function buildNav() {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    nav.innerHTML = '';
+    secs.forEach(function (s, i) {
+      var label = s.dataset.nav;
+      if (!label) { navItems.push(null); return; }
+      var item = document.createElement('div');
+      item.className = 'nav-sec';
+      item.innerHTML = '<div class="n">' + (s.dataset.num || '') + '</div><div class="t"></div>';
+      item.querySelector('.t').textContent = label;
+      item.addEventListener('click', function () { show(i); });
+      nav.appendChild(item);
+      navItems.push(item);
+    });
+  }
+
+  function show(i) {
+    if (i < 0 || i >= secs.length) return;
+    secs[cur].classList.remove('active');
+    cur = i;
+    secs[cur].classList.add('active');
+    reanimate(secs[cur]);
+
+    for (var k = 0; k < navItems.length; k++) {
+      if (!navItems[k]) continue;
+      navItems[k].classList.toggle('active', k === cur);
+    }
+    var active = navItems[cur];
+    if (active && active.scrollIntoView) active.scrollIntoView({ block: 'nearest' });
+
+    var pos = document.getElementById('slidePos');
+    if (pos) pos.textContent = (cur + 1) + ' / ' + secs.length;
+
+    var prev = document.getElementById('btnPrev');
+    var next = document.getElementById('btnNext');
+    if (prev) prev.disabled = (cur === 0);
+    if (next) next.disabled = (cur === secs.length - 1);
+
+    if (history.replaceState) history.replaceState(null, '', '#' + (cur + 1));
+  }
+
+  function wireButtons() {
+    var prev = document.getElementById('btnPrev');
+    var next = document.getElementById('btnNext');
+    var full = document.getElementById('btnFull');
+    if (prev) prev.addEventListener('click', function () { show(cur - 1); });
+    if (next) next.addEventListener('click', function () { show(cur + 1); });
+    if (full) full.addEventListener('click', function () {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else document.documentElement.requestFullscreen();
+    });
+  }
+
+  function wireKeys() {
+    document.addEventListener('keydown', function (e) {
+      /* Sem esta guarda, Ctrl+F abre a busca do navegador E joga o deck em tela
+         cheia ao mesmo tempo; o mesmo vale para Ctrl+Seta e afins. */
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); show(cur + 1); }
+      else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(cur - 1); }
+      else if (e.key === 'Home') { e.preventDefault(); show(0); }
+      else if (e.key === 'End') { e.preventDefault(); show(secs.length - 1); }
+      else if (e.key === 'f' || e.key === 'F') {
+        if (document.fullscreenElement) document.exitFullscreen();
+        else document.documentElement.requestFullscreen();
+      }
+    });
+  }
+
+  function init() {
+    wireMark();
+    secs = Array.prototype.slice.call(document.querySelectorAll('section.sec'));
+    if (!secs.length) return;
+    buildNav();
+    wireButtons();
+    wireKeys();
+
+    var start = 0;
+    var hash = parseInt((location.hash || '').replace('#', ''), 10);
+    if (hash >= 1 && hash <= secs.length) start = hash - 1;
+
+    secs.forEach(function (s) { s.classList.remove('active'); });
+    cur = start;
+    secs[cur].classList.add('active');
+    show(cur);
+
+    /* Colar `...#7` na barra de endereço da MESMA aba muda só o hash e não
+       recarrega a página, então sem este ouvinte o deck ignorava o link. */
+    window.addEventListener('hashchange', function () {
+      var n = parseInt((location.hash || '').replace('#', ''), 10);
+      if (n >= 1 && n <= secs.length && n - 1 !== cur) show(n - 1);
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+
+  window.amDeck = {
+    version: DECK_VERSION,
+    go: function (n) { show(n); },
+    next: function () { show(cur + 1); },
+    prev: function () { show(cur - 1); },
+    current: function () { return cur; },
+    count: function () { return secs.length; },
+    reanimate: reanimate
+  };
+})();
+</script></body></html>
